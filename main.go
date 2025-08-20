@@ -1,16 +1,23 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
 	"regexp"
 	"time"
 
+	services "github.com/amarseillaise/instareels_to_telegram/services"
+
+	env "github.com/joho/godotenv"
 	tele "gopkg.in/telebot.v4"
 )
 
 func main() {
+	initEnv()
+	token, _ := os.LookupEnv("TELETOKEN")
 	pref := tele.Settings{
-		Token:  "7727195679:AAECHnq-R2tK6-Srejur0GeNpyZT15qQgCo",
+		Token:  token,
 		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
 	}
 	bot, err := tele.NewBot(pref)
@@ -23,10 +30,17 @@ func main() {
 		_url := c.Text()
 		is_valid_url, _ := regexp.MatchString(pattern, _url)
 		if is_valid_url {
-			DownloadReel(_url)
+			res := services.DownloadReel(_url)
+			fmt.Printf("res: %v\n", res)
 		}
 		return nil
 	})
 
 	bot.Start()
+}
+
+func initEnv() {
+	if err := env.Load(); err != nil {
+		log.Fatal("No .env file found")
+	}
 }

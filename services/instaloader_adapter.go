@@ -1,4 +1,4 @@
-package main
+package services
 
 import (
 	"log"
@@ -15,7 +15,7 @@ func executeCMD(scriptPath string) error {
 	if err != nil {
 		log.Fatalf("Error executing Python script: %v\nOutput: %s", err, res)
 	} else {
-		log.Print(res)
+		log.Print(string(res))
 	}
 	return err
 }
