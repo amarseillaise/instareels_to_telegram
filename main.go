@@ -15,7 +15,7 @@ import (
 
 func main() {
 	initEnv()
-	token, _ := os.LookupEnv("TELETOKEN")
+	token := os.Getenv("TELETOKEN")
 	pref := tele.Settings{
 		Token:  token,
 		Poller: &tele.LongPoller{Timeout: 10 * time.Second},

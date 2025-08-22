@@ -27,6 +27,12 @@ go.work.sum
 # env file
 .env
 
+# virtual envs
+.venv/
+
 # Editor/IDE
 # .idea/
 # .vscode/
+
+# other
+requiremets.txt
