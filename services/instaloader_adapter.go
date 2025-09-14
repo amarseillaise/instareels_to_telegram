@@ -14,7 +14,7 @@ var paths = struct {
 	script       string
 	tempFiles    string
 }{
-	interpitator: "./.venv/bin/python",
+	interpitator: "python",
 	script:       "./instaloader/instaloader.py",
 	tempFiles:    "temp/{shortcode}",
 }
@@ -31,13 +31,20 @@ func parseShortcode(_url string) string {
 	match := re.FindString(_url)
 	resultsSlice := strings.Split(match, "/")
 	shortcode := resultsSlice[1]
-	return fmt.Sprintf("-- -%s", shortcode)
+	return fmt.Sprintf(" -%s", shortcode)
 }
 
 func executeCMD(shortcode string) error {
+	args := []string{paths.script}
 	scriptArgs := getScriptArgs()
-	args := buildArgs(scriptArgs)
-	cmd := exec.Command(paths.interpitator, paths.script, args, shortcode)
+	additionalArgs := buildArgs(scriptArgs)
+	args = append(args, additionalArgs, "--", shortcode)
+	cmd := exec.Command(paths.interpitator, paths.script, allArgs...)
+
+	additionalEnv := "python=./.venv/Scripts/python"
+	newEnv := append(os.Environ(), additionalEnv)
+	cmd.Env = newEnv
+
 	res, err := cmd.CombinedOutput()
 	fmt.Printf("err: %v\n", err)
 	if err != nil {
@@ -62,13 +69,12 @@ func getScriptArgs() map[string]bool {
 	return scriptArgs
 }
 
-func buildArgs(args map[string]bool) string {
+func buildArgs(args map[string]bool) []string {
 	var resArgs []string
 	for arg, needed := range args {
 		if needed {
 			resArgs = append(resArgs, arg)
 		}
 	}
-	res := strings.Join(resArgs, " ")
-	return res
+	return resArgs
 }
