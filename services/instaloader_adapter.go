@@ -31,22 +31,22 @@ func parseShortcode(_url string) string {
 	match := re.FindString(_url)
 	resultsSlice := strings.Split(match, "/")
 	shortcode := resultsSlice[1]
-	return fmt.Sprintf(" -%s", shortcode)
+	return fmt.Sprintf("-%s", shortcode)
 }
 
 func executeCMD(shortcode string) error {
-	args := []string{paths.script}
-	scriptArgs := getScriptArgs()
-	additionalArgs := buildArgs(scriptArgs)
-	args = append(args, additionalArgs, "--", shortcode)
-	cmd := exec.Command(paths.interpitator, paths.script, allArgs...)
+	allArgs := getScriptArgs()
+	scriptArgs := []string{paths.script}
+	scriptArgs = append(scriptArgs, allArgs...)
+	scriptArgs = append(scriptArgs, "--", shortcode)
+
+	cmd := exec.Command(paths.interpitator, scriptArgs...)
 
 	additionalEnv := "python=./.venv/Scripts/python"
 	newEnv := append(os.Environ(), additionalEnv)
 	cmd.Env = newEnv
 
 	res, err := cmd.CombinedOutput()
-	fmt.Printf("err: %v\n", err)
 	if err != nil {
 		log.Fatalf("Error executing Python script: %v\nOutput: %s", err, res)
 	} else {
@@ -55,26 +55,15 @@ func executeCMD(shortcode string) error {
 	return err
 }
 
-func getScriptArgs() map[string]bool {
-	var scriptArgs = map[string]bool{
-		fmt.Sprintf("--login %s", os.Getenv("INSTLOGIN")):     true,
-		fmt.Sprintf("--password %s", os.Getenv("INSTPASSWD")): true,
-		fmt.Sprintf("--dirname-pattern %s", paths.tempFiles):  true,
-		"--no-pictures":         true,
-		"--no-video-thumbnails": true,
-		"--no-metadata-json":    true,
-		"--no-iphone":           true,
-		"--quiet":               true,
+func getScriptArgs() []string {
+	return []string{
+		// "--login", os.Getenv("INSTLOGIN"),
+		// "--password", os.Getenv("INSTPASSWD"),
+		"--dirname-pattern", paths.tempFiles,
+		"--no-pictures",
+		"--no-video-thumbnails",
+		"--no-metadata-json",
+		"--no-iphone",
+		"--quiet",
 	}
-	return scriptArgs
-}
-
-func buildArgs(args map[string]bool) []string {
-	var resArgs []string
-	for arg, needed := range args {
-		if needed {
-			resArgs = append(resArgs, arg)
-		}
-	}
-	return resArgs
 }
