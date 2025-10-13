@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"regexp"
@@ -12,6 +11,8 @@ import (
 	env "github.com/joho/godotenv"
 	tele "gopkg.in/telebot.v4"
 )
+
+const tempDir = "temp"
 
 func main() {
 	initEnv()
@@ -30,8 +31,12 @@ func main() {
 		_url := c.Text()
 		is_valid_url, _ := regexp.MatchString(pattern, _url)
 		if is_valid_url {
-			res := services.DownloadReel(_url)
-			fmt.Printf("res: %v\n", res)
+			shortcode := services.ParseShortcode(_url)
+			res := services.DownloadReel(shortcode)
+			if res != nil {
+				return c.Reply("Error downloading reel")
+			}
+			return c.Reply("Here is your reel")
 		}
 		return nil
 	})

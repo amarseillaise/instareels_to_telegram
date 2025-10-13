@@ -19,13 +19,12 @@ var paths = struct {
 	tempFiles:    "temp/{shortcode}",
 }
 
-func DownloadReel(_url string) error {
-	shortcode := parseShortcode(_url)
+func DownloadReel(shortcode string) error {
 	err := executeCMD(shortcode)
 	return err
 }
 
-func parseShortcode(_url string) string {
+func ParseShortcode(_url string) string {
 	pattern := "reel/.+/"
 	re := regexp.MustCompile(pattern)
 	match := re.FindString(_url)
