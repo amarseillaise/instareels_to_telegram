@@ -1,12 +1,9 @@
-package adapters
+package services
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/exec"
-	"regexp"
-	"strings"
 )
 
 var paths = struct {
@@ -22,15 +19,6 @@ var paths = struct {
 func DownloadReel(shortcode string) error {
 	err := executeCMD(shortcode)
 	return err
-}
-
-func ParseShortcode(_url string) string {
-	pattern := "reel/.+/"
-	re := regexp.MustCompile(pattern)
-	match := re.FindString(_url)
-	resultsSlice := strings.Split(match, "/")
-	shortcode := resultsSlice[1]
-	return fmt.Sprintf("-%s", shortcode)
 }
 
 func executeCMD(shortcode string) error {

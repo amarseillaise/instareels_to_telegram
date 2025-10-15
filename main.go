@@ -10,8 +10,6 @@ import (
 	env "github.com/joho/godotenv"
 )
 
-const tempDir = "temp"
-
 func main() {
 	initEnv()
 	token := os.Getenv("TELETOKEN")
@@ -20,6 +18,7 @@ func main() {
 		log.Fatal(err)
 	}
 	b.Handle(telebot.OnText, bot.OnTextHandler)
+
 	b.Start()
 }
 

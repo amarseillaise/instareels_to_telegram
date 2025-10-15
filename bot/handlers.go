@@ -1,11 +1,12 @@
 package bot
 
 import (
+	"fmt"
 	re "regexp"
 
 	tele "gopkg.in/telebot.v4"
 
-	"github.com/amarseillaise/instareels_to_telegram/adapters"
+	"github.com/amarseillaise/instareels_to_telegram/services"
 )
 
 func OnTextHandler(c tele.Context) error {
@@ -13,12 +14,13 @@ func OnTextHandler(c tele.Context) error {
 	_url := c.Text()
 	is_valid_url, _ := re.MatchString(pattern, _url)
 	if is_valid_url {
-		shortcode := adapters.ParseShortcode(_url)
-		res := adapters.DownloadReel(shortcode)
-		if res != nil {
+		shortcode := services.ParseShortcode(_url)
+		res, err := services.GetReel(shortcode)
+		fmt.Println(err)
+		if err != nil {
 			return c.Reply("Error downloading reel")
 		}
-		return c.Reply("Here is your reel")
+		return c.Reply(res.Video)
 	}
 	return nil
 }
