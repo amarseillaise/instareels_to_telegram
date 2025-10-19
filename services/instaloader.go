@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -25,7 +26,7 @@ func executeCMD(shortcode string) error {
 	allArgs := getScriptArgs()
 	scriptArgs := []string{paths.script}
 	scriptArgs = append(scriptArgs, allArgs...)
-	scriptArgs = append(scriptArgs, "--", shortcode)
+	scriptArgs = append(scriptArgs, "--", fmt.Sprintf("-%s", shortcode))
 
 	cmd := exec.Command(paths.interpitator, scriptArgs...)
 

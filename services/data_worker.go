@@ -16,7 +16,7 @@ const (
 
 type ReelInfo struct {
 	Description string
-	Video       telebot.Video
+	Video       *telebot.Video
 }
 
 func GetReel(shortcode string) (ReelInfo, error) {
@@ -35,7 +35,7 @@ func GetReel(shortcode string) (ReelInfo, error) {
 
 	videoPath := findFile(shortcode, []string{".mp4", ".avi", ".mkv", ".mov"})
 	video := telebot.FromDisk(videoPath)
-	teleVideo := telebot.Video{File: video}
+	teleVideo := &telebot.Video{File: video, Caption: descriptionContent}
 
 	reel.Description = descriptionContent
 	reel.Video = teleVideo
@@ -60,5 +60,5 @@ func ParseShortcode(_url string) string {
 	match := re.FindString(_url)
 	resultsSlice := strings.Split(match, "/")
 	shortcode := resultsSlice[1]
-	return fmt.Sprintf("-%s", shortcode)
+	return shortcode
 }
