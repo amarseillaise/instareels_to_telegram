@@ -20,16 +20,21 @@ type ReelInfo struct {
 }
 
 func GetReel(shortcode string) (ReelInfo, error) {
-	reel := ReelInfo{}
-	err := DownloadReel(shortcode)
 	// TODO: make caching and try to read from cache first
+	reel := ReelInfo{}
+	err := downloadRemote(shortcode, &reel)
+	return reel, err
+}
+
+func downloadRemote(shortcode string, reel *ReelInfo) error {
+	err := DownloadReel(shortcode)
 	if err != nil {
-		return reel, err
+		return err
 	}
 	descriptionPath := findFile(shortcode, []string{".txt"})
 	descriptionBytes, err := os.ReadFile(descriptionPath)
 	if err != nil {
-		return reel, err
+		return err
 	}
 	descriptionContent := string(descriptionBytes)
 
@@ -39,8 +44,7 @@ func GetReel(shortcode string) (ReelInfo, error) {
 
 	reel.Description = descriptionContent
 	reel.Video = teleVideo
-	return reel, nil
-
+	return nil
 }
 
 func findFile(shortcode string, extensions []string) string {

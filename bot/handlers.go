@@ -1,7 +1,6 @@
 package bot
 
 import (
-	"fmt"
 	re "regexp"
 
 	tele "gopkg.in/telebot.v4"
@@ -16,7 +15,6 @@ func OnTextHandler(c tele.Context) error {
 	if is_valid_url {
 		shortcode := services.ParseShortcode(_url)
 		res, err := services.GetReel(shortcode)
-		fmt.Println(err)
 		if err != nil {
 			return c.Reply("Error downloading reel")
 		}
