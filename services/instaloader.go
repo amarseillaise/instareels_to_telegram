@@ -3,19 +3,33 @@ package services
 import (
 	"fmt"
 	"log"
-	// "os"
 	"os/exec"
+	"runtime"
 )
 
-var paths = struct {
+type Paths struct {
 	interpitator string
 	script       string
 	tempFiles    string
-}{
-	interpitator: "./.venv/bin/python",
-	script:       "./instaloader/instaloader.py",
-	tempFiles:    "temp/{shortcode}",
 }
+
+func initPaths() Paths {
+	paths := Paths{
+		interpitator: "",
+		script:       "./instaloader/instaloader.py",
+		tempFiles:    fmt.Sprintf("%s/{shortcode}", tempDir),
+	}
+
+	switch os := runtime.GOOS; os {
+	case "windows":
+		paths.interpitator = "./.venv/Scripts/python"
+	default:
+		paths.interpitator = "./.venv/bin/python"
+	}
+	return paths
+}
+
+var paths = initPaths()
 
 func DownloadReel(shortcode string) error {
 	err := executeCMD(shortcode)
@@ -29,10 +43,6 @@ func executeCMD(shortcode string) error {
 	scriptArgs = append(scriptArgs, "--", fmt.Sprintf("-%s", shortcode))
 
 	cmd := exec.Command(paths.interpitator, scriptArgs...)
-
-	// py_interpritator := "python=./.venv/bin/python"
-	// newEnv := append(os.Environ(), py_interpritator)
-	// cmd.Env = newEnv
 
 	res, err := cmd.CombinedOutput()
 	if err != nil {

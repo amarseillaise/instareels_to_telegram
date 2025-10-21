@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	tempDir = "temp"
+	tempDir = "./.temp"
 )
 
 func GetReelPath(shortcode string) (string, string, error) {

@@ -4,12 +4,11 @@ import (
 	re "regexp"
 
 	"gopkg.in/telebot.v4"
-	tele "gopkg.in/telebot.v4"
 
 	"github.com/amarseillaise/instareels_to_telegram/services"
 )
 
-func OnTextHandler(c tele.Context) error {
+func OnTextHandler(c telebot.Context) error {
 	pattern := "\\.*instagram.com/reel\\.*/"
 	_url := c.Text()
 	is_valid_url, _ := re.MatchString(pattern, _url)
@@ -20,8 +19,8 @@ func OnTextHandler(c tele.Context) error {
 		if err == nil {
 			teleVideo := MakeVideo(videoPath)
 			videoCaption := MakeCaption(captionPath)
-			teleVideo.Caption = *videoCaption
-			c.Reply(teleVideo)
+			teleVideo.Caption = videoCaption
+			return c.Reply(teleVideo)
 		} else {
 			return c.Reply("Error downloading reel")
 		}
