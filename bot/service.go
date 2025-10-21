@@ -1,9 +1,16 @@
 package bot
 
 import (
-	tele "gopkg.in/telebot.v4"
+	"os"
 	"time"
+
+	tele "gopkg.in/telebot.v4"
 )
+
+type ReelInfo struct {
+	Video   *tele.Video
+	Caption string
+}
 
 func InitBot(token *string) (*tele.Bot, error) {
 	pref := tele.Settings{
@@ -12,4 +19,18 @@ func InitBot(token *string) (*tele.Bot, error) {
 	}
 	bot, err := tele.NewBot(pref)
 	return bot, err
+}
+
+func MakeVideo(videoPath string) *tele.Video {
+	teleVideo := &tele.Video{File: tele.FromDisk(videoPath)}
+	return teleVideo
+}
+
+func MakeCaption(captionPath string) *string {
+	var captionContent string
+	captionBytes, err := os.ReadFile(captionPath)
+	if err == nil {
+		captionContent = string(captionBytes)
+	}
+	return &captionContent
 }

@@ -3,6 +3,7 @@ package bot
 import (
 	re "regexp"
 
+	"gopkg.in/telebot.v4"
 	tele "gopkg.in/telebot.v4"
 
 	"github.com/amarseillaise/instareels_to_telegram/services"
@@ -13,12 +14,17 @@ func OnTextHandler(c tele.Context) error {
 	_url := c.Text()
 	is_valid_url, _ := re.MatchString(pattern, _url)
 	if is_valid_url {
+		c.Notify(telebot.UploadingVideo)
 		shortcode := services.ParseShortcode(_url)
-		res, err := services.GetReel(shortcode)
-		if err != nil {
+		videoPath, captionPath, err := services.GetReelPath(shortcode)
+		if err == nil {
+			teleVideo := MakeVideo(videoPath)
+			videoCaption := MakeCaption(captionPath)
+			teleVideo.Caption = *videoCaption
+			c.Reply(teleVideo)
+		} else {
 			return c.Reply("Error downloading reel")
 		}
-		return c.Reply(res.Video)
 	}
 	return nil
 }

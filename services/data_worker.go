@@ -2,49 +2,29 @@ package services
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
-
-	"gopkg.in/telebot.v4"
 )
 
 const (
 	tempDir = "temp"
 )
 
-type ReelInfo struct {
-	Description string
-	Video       *telebot.Video
-}
-
-func GetReel(shortcode string) (ReelInfo, error) {
+func GetReelPath(shortcode string) (string, string, error) {
 	// TODO: make caching and try to read from cache first
-	reel := ReelInfo{}
-	err := downloadRemote(shortcode, &reel)
-	return reel, err
+	videoPath, captionPath, err := downloadRemote(shortcode)
+	return videoPath, captionPath, err
 }
 
-func downloadRemote(shortcode string, reel *ReelInfo) error {
+func downloadRemote(shortcode string) (string, string, error) {
 	err := DownloadReel(shortcode)
 	if err != nil {
-		return err
+		return "", "", err
 	}
-	descriptionPath := findFile(shortcode, []string{".txt"})
-	descriptionBytes, err := os.ReadFile(descriptionPath)
-	if err != nil {
-		return err
-	}
-	descriptionContent := string(descriptionBytes)
-
+	captionPath := findFile(shortcode, []string{".txt"})
 	videoPath := findFile(shortcode, []string{".mp4", ".avi", ".mkv", ".mov"})
-	video := telebot.FromDisk(videoPath)
-	teleVideo := &telebot.Video{File: video, Caption: descriptionContent}
-
-	reel.Description = descriptionContent
-	reel.Video = teleVideo
-	return nil
+	return videoPath, captionPath, nil
 }
 
 func findFile(shortcode string, extensions []string) string {

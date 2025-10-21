@@ -3,7 +3,7 @@ package services
 import (
 	"fmt"
 	"log"
-	"os"
+	// "os"
 	"os/exec"
 )
 
@@ -12,7 +12,7 @@ var paths = struct {
 	script       string
 	tempFiles    string
 }{
-	interpitator: "python",
+	interpitator: "./.venv/bin/python",
 	script:       "./instaloader/instaloader.py",
 	tempFiles:    "temp/{shortcode}",
 }
@@ -30,15 +30,13 @@ func executeCMD(shortcode string) error {
 
 	cmd := exec.Command(paths.interpitator, scriptArgs...)
 
-	additionalEnv := "python=./.venv/Scripts/python"
-	newEnv := append(os.Environ(), additionalEnv)
-	cmd.Env = newEnv
+	// py_interpritator := "python=./.venv/bin/python"
+	// newEnv := append(os.Environ(), py_interpritator)
+	// cmd.Env = newEnv
 
 	res, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Fatalf("Error executing Python script: %v\nOutput: %s", err, res)
-	} else {
-		log.Print(string(res))
 	}
 	return err
 }
