@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 	"runtime"
 )
@@ -53,8 +54,8 @@ func executeCMD(shortcode string) error {
 
 func getScriptArgs() []string {
 	return []string{
-		// "--login", os.Getenv("INSTLOGIN"),
-		// "--password", os.Getenv("INSTPASSWD"),
+		"--login", os.Getenv("INSTLOGIN"),
+		"--password", os.Getenv("INSTPASSWD"),
 		"--dirname-pattern", paths.tempFiles,
 		"--no-pictures",
 		"--no-video-thumbnails",
