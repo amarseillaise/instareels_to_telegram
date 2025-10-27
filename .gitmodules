@@ -1,3 +1,4 @@
 [submodule "instaloader"]
 	path = instaloader
 	url = https://github.com/instaloader/instaloader.git
+	branch = v4.10
