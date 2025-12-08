@@ -5,32 +5,10 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"runtime"
+	"path/filepath"
 )
 
-type Paths struct {
-	interpitator string
-	script       string
-	tempFiles    string
-}
-
-func initPaths() Paths {
-	paths := Paths{
-		interpitator: "",
-		script:       "./instaloader/instaloader.py",
-		tempFiles:    fmt.Sprintf("%s/{shortcode}", tempDir),
-	}
-
-	switch os := runtime.GOOS; os {
-	case "windows":
-		paths.interpitator = "./.venv/Scripts/python"
-	default:
-		paths.interpitator = "./.venv/bin/python"
-	}
-	return paths
-}
-
-var paths = initPaths()
+const ytdlp = "yt-dlp"
 
 func DownloadReel(shortcode string) error {
 	err := executeCMD(shortcode)
@@ -38,29 +16,31 @@ func DownloadReel(shortcode string) error {
 }
 
 func executeCMD(shortcode string) error {
-	allArgs := getScriptArgs()
-	scriptArgs := []string{paths.script}
-	scriptArgs = append(scriptArgs, allArgs...)
-	scriptArgs = append(scriptArgs, "--", fmt.Sprintf("-%s", shortcode))
+	args := getScriptArgs(shortcode)
+	cmd := exec.Command(ytdlp, args...)
 
-	cmd := exec.Command(paths.interpitator, scriptArgs...)
+	outputDir := filepath.Join(tempDir, shortcode)
+	os.MkdirAll(outputDir, 0755)
 
 	res, err := cmd.CombinedOutput()
 	if err != nil {
-		log.Fatalf("Error executing Python script: %v\nOutput: %s", err, res)
+		log.Printf("Error executing yt-dlp: %v\nOutput: %s", err, res)
+		return err
 	}
-	return err
+	return nil
 }
 
-func getScriptArgs() []string {
+func getScriptArgs(shortcode string) []string {
+	url := fmt.Sprintf("https://www.instagram.com/reel/%s/", shortcode)
+	outputPath := fmt.Sprintf("%s/%s/%%(title)s.%%(ext)s", tempDir, shortcode)
+
 	return []string{
-		"--login", os.Getenv("INSTLOGIN"),
-		"--password", os.Getenv("INSTPASSWD"),
-		"--dirname-pattern", paths.tempFiles,
-		"--no-pictures",
-		"--no-video-thumbnails",
-		"--no-metadata-json",
-		"--no-iphone",
+		url,
+		"-o", outputPath,
+		"--write-description",
+		"--no-warnings",
 		"--quiet",
+		"--no-playlist",
+		"--cookies", "./cookies.txt",
 	}
 }

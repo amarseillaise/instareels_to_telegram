@@ -22,7 +22,7 @@ func downloadRemote(shortcode string) (string, string, error) {
 	if err != nil {
 		return "", "", err
 	}
-	captionPath := findFile(shortcode, []string{".txt"})
+	captionPath := findFile(shortcode, []string{".description", ".txt"})
 	videoPath := findFile(shortcode, []string{".mp4", ".avi", ".mkv", ".mov"})
 	return videoPath, captionPath, nil
 }
@@ -33,6 +33,7 @@ func findFile(shortcode string, extensions []string) string {
 		mathces, err := filepath.Glob(fmt.Sprintf("%s/%s/*%s", tempDir, shortcode, ext))
 		if err == nil && len(mathces) > 0 {
 			res = mathces[0]
+			break
 		}
 	}
 	return res
