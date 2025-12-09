@@ -1,7 +1,11 @@
 package tests
 
 import (
+	"context"
+	"crypto/tls"
 	"log"
+	"net"
+	"net/http"
 	"os"
 	"strconv"
 	"testing"
@@ -21,7 +25,27 @@ func TestSendVideo(t *testing.T) {
 		log.Fatal("Test environment is not defined")
 	}
 
+	dialer := &net.Dialer{
+		Timeout:   30 * time.Second,
+		KeepAlive: 30 * time.Second,
+	}
+
+	client := &http.Client{
+		Timeout: 60 * time.Second,
+		Transport: &http.Transport{
+			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+				// force IPv4
+				return dialer.DialContext(ctx, "tcp4", addr)
+			},
+			TLSClientConfig: &tls.Config{
+				MinVersion: tls.VersionTLS12,
+			},
+			DisableKeepAlives: false,
+		},
+	}
+
 	pref := telebot.Settings{
+		Client: client,
 		Token:  token,
 		Poller: &telebot.LongPoller{Timeout: 10 * time.Second},
 	}

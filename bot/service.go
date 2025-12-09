@@ -1,6 +1,10 @@
 package bot
 
 import (
+	"context"
+	"crypto/tls"
+	"net"
+	"net/http"
 	"os"
 	"time"
 
@@ -13,12 +17,36 @@ type ReelInfo struct {
 }
 
 func InitBot(token *string) (*tele.Bot, error) {
+	client := initClient()
 	pref := tele.Settings{
 		Token:  *token,
 		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
+		Client: client,
 	}
 	bot, err := tele.NewBot(pref)
 	return bot, err
+}
+
+func initClient() *http.Client {
+	dialer := &net.Dialer{
+		Timeout:   30 * time.Second,
+		KeepAlive: 30 * time.Second,
+	}
+
+	client := &http.Client{
+		Timeout: 60 * time.Second,
+		Transport: &http.Transport{
+			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+				// force IPv4
+				return dialer.DialContext(ctx, "tcp4", addr)
+			},
+			TLSClientConfig: &tls.Config{
+				MinVersion: tls.VersionTLS12,
+			},
+			DisableKeepAlives: false,
+		},
+	}
+	return client
 }
 
 func MakeVideo(videoPath string) *tele.Video {
