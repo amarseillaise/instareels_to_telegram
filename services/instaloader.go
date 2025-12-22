@@ -42,5 +42,6 @@ func getScriptArgs(shortcode string) []string {
 		"--quiet",
 		"--no-playlist",
 		"--cookies", "./cookies.txt",
+		"--format", "bestvideo[height<=1280][width<=720][vcodec^=avc1]+bestaudio/best[height<=1280][width<=720][vcodec^=avc1]/best",
 	}
 }
